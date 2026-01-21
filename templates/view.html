@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+
+    <!-- ✅ 한글용 제목 (글리치 제거) -->
+    <h1 class="post-title">{{ post.title }}</h1>
+
+    <p>{{ post.content }}</p>
+
+    {% if post.image %}
+      <!-- ✅ 정상 출력 -->
+      <img src="/uploads/{{ post.image }}" class="crt">
+    {% endif %}
+
+    <br><br>
+    <a href="/edit/{{ post.id }}">✏ 수정</a> |
+    <a href="/delete/{{ post.id }}" onclick="return confirm('삭제할까요?')">🗑 삭제</a> |
+    <a href="/">🏠 목록</a>
+
+  </div>
+</body>
+</html>

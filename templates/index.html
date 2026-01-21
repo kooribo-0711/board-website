@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>Y2K BOARD</title>
+</head>
+<body>
+  <marquee scrollamount="6">
+    💿 WELCOME TO Y2K BOARD 💿 CRT MODE ON 💿
+  </marquee>
+
+  <div class="container">
+    <h1>📼 Y2K BOARD</h1>
+    <a href="/write">✍ 글쓰기</a>
+
+    {% for post in posts %}
+      <div class="post">
+        <h2>
+          <a href="/view/{{ post.id }}">{{ post.title }}</a>
+        </h2>
+        <p>{{ post.created_at }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>
