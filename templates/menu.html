@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>점심 메뉴 추천기</title>
+  <style>
+    /* 메뉴 페이지 전용 스타일 */
+    .nav-menu {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-menu a {
+      padding: 10px 20px;
+      background: rgba(155, 246, 255, 0.2);
+      border: 2px solid #9bf6ff;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-size: 16px;
+    }
+
+    .nav-menu a:hover {
+      background: rgba(255, 157, 226, 0.3);
+      border-color: #ff9de2;
+    }
+
+    .nav-menu a.active {
+      background: linear-gradient(135deg, #ff9de2, #cdb4ff);
+      border-color: #ff9de2;
+    }
+
+    .random-section {
+      text-align: center;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .random-btn {
+      padding: 20px 50px;
+      background: linear-gradient(135deg, #ff9de2, #cdb4ff);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 6px 20px rgba(255, 157, 226, 0.5);
+    }
+
+    .random-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(255, 157, 226, 0.7);
+    }
+
+    .result-box {
+      margin-top: 30px;
+      padding: 40px;
+      background: linear-gradient(135deg, rgba(205, 180, 255, 0.2), rgba(255, 157, 226, 0.2));
+      border: 4px solid #9bf6ff;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(155, 246, 255, 0.5);
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.5s;
+    }
+
+    .result-box.show {
+      opacity: 1;
+      transform: scale(1);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(155, 246, 255, 0.5); }
+      50% { box-shadow: 0 0 50px rgba(255, 157, 226, 0.8); }
+    }
+
+    .result-emoji { font-size: 80px; margin-bottom: 20px; }
+    .result-category { font-size: 24px; color: #9bf6ff; margin-bottom: 15px; }
+    .result-menu { font-size: 48px; font-weight: bold; color: white; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .category-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      border-left: 6px solid #ff9de2;
+      transition: all 0.3s;
+    }
+
+    .category-card:hover {
+      background: rgba(255, 255, 255, 0.12);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(255, 157, 226, 0.3);
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .category-header h2 { font-size: 24px; color: white; }
+
+    .add-btn {
+      background: none;
+      border: 2px solid #9bf6ff;
+      border-radius: 8px;
+      color: #9bf6ff;
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .add-btn:hover {
+      background: #9bf6ff;
+      color: #0f0f1b;
+      transform: rotate(90deg);
+    }
+
+    .add-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      animation: slideDown 0.3s;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .add-form input[type="text"] {
+      flex: 1;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #9bf6ff;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .add-form input[type="text"]:focus {
+      outline: none;
+      border-color: #ff9de2;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 15px rgba(255, 157, 226, 0.3);
+    }
+
+    .add-form input::placeholder { color: rgba(255, 255, 255, 0.5); }
+
+    .submit-btn {
+      padding: 10px 20px;
+      background: #9bf6ff;
+      border: none;
+      border-radius: 8px;
+      color: #0f0f1b;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-btn:hover {
+      background: #ff9de2;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .menu-list { margin-bottom: 16px; }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      color: #9bf6ff;
+      transition: all 0.3s;
+    }
+
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .menu-item:hover .delete-btn { opacity: 1; }
+    .delete-btn:hover { transform: scale(1.2); }
+
+    .menu-count {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <marquee scrollamount="6">
+    🍱 LUNCH MENU RANDOMIZER 🍱 Y2K STYLE 🍱 WHAT'S FOR LUNCH? 🍱
+  </marquee>
+
+  <div class="container">
+    <!-- 네비게이션 -->
+    <div class="nav-menu">
+      <a href="/">📼 게시판</a>
+      <a href="/menu" class="active">🍴 메뉴 추천</a>
+    </div>
+
+    <h1>🍴 오늘 뭐 먹지? 🤔</h1>
+
+    <!-- 랜덤 메뉴 선택 -->
+    <div class="random-section">
+      <button onclick="pickRandomMenu()" class="random-btn">
+        <span id="btn-text">🎲 메뉴 뽑기!</span>
+      </button>
+
+      <div id="result" class="result-box">
+        <div id="result-emoji" class="result-emoji"></div>
+        <div id="result-category" class="result-category"></div>
+        <div id="result-menu" class="result-menu"></div>
+      </div>
+    </div>
+
+    <!-- 메뉴 카테고리 -->
+    <div class="categories-grid">
+      {% for category_id, category_data in menus.items() %}
+      <div class="category-card">
+        <div class="category-header">
+          <h2>{{ category_data.emoji }} {{ category_data.name }}</h2>
+          <button onclick="toggleAddForm('{{ category_id }}')" class="add-btn">➕</button>
+        </div>
+
+        <!-- 메뉴 추가 폼 -->
+        <form id="add-form-{{ category_id }}" class="add-form" style="display:none;" 
+              action="/add_menu" method="post">
+          <input type="hidden" name="category" value="{{ category_id }}">
+          <input type="text" name="menu_item" placeholder="메뉴 이름" required>
+          <button type="submit" class="submit-btn">추가</button>
+        </form>
+
+        <!-- 
+        메뉴 리스트 
+        { % for item in category_data.items % }
+
+        -->
+        <div class="menu-list">
+          
+          {% for item in category_data['items'] %}
+          <div class="menu-item">
+            <span>{{ item }}</span>
+            <form action="/delete_menu" method="post" style="display:inline;">
+              <input type="hidden" name="category" value="{{ category_id }}">
+              <input type="hidden" name="menu_item" value="{{ item }}">
+              <button type="submit" class="delete-btn" onclick="return confirm('{{ item }}을(를) 삭제하시겠습니까?')">
+                🗑️
+              </button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="menu-count">총 {{ category_data.items|length }}개 메뉴</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    const menus = {{ menus|tojson }};
+
+    function pickRandomMenu() {
+      const btnText = document.getElementById('btn-text');
+      const result = document.getElementById('result');
+      
+      // 버튼 애니메이션
+      btnText.textContent = '🔄 뽑는 중...';
+      result.classList.remove('show');
+      
+      setTimeout(() => {
+        // 모든 메뉴를 배열로 변환
+        const allMenus = [];
+        for (const [categoryId, categoryData] of Object.entries(menus)) {
+          categoryData.items.forEach(item => {
+            allMenus.push({
+              category: categoryData.name,
+              emoji: categoryData.emoji,
+              item: item
+            });
+          });
+        }
+
+        // 랜덤 선택
+        const randomIndex = Math.floor(Math.random() * allMenus.length);
+        const selected = allMenus[randomIndex];
+
+        // 결과 표시
+        document.getElementById('result-emoji').textContent = selected.emoji;
+        document.getElementById('result-category').textContent = selected.category;
+        document.getElementById('result-menu').textContent = selected.item;
+        result.classList.add('show');
+
+        btnText.textContent = '🎲 메뉴 뽑기!';
+      }, 1000);
+    }
+
+    function toggleAddForm(categoryId) {
+      const form = document.getElementById('add-form-' + categoryId);
+      form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+    }
+  </script>
+</body>
+</html>

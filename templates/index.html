@@ -4,6 +4,38 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <title>Y2K BOARD</title>
+  <style>
+    /* 네비게이션 스타일 추가 */
+    .nav-menu {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-menu a {
+      padding: 10px 20px;
+      background: rgba(155, 246, 255, 0.2);
+      border: 2px solid #9bf6ff;
+      border-radius: 8px;
+      transition: all 0.3s;
+      font-size: 16px;
+      text-decoration: none;
+      color: #9bf6ff;
+    }
+
+    .nav-menu a:hover {
+      background: rgba(255, 157, 226, 0.3);
+      border-color: #ff9de2;
+    }
+
+    .nav-menu a.active {
+      background: linear-gradient(135deg, #ff9de2, #cdb4ff);
+      border-color: #ff9de2;
+      color: white;
+    }
+  </style>
 </head>
 <body>
   <marquee scrollamount="6">
@@ -11,6 +43,12 @@
   </marquee>
 
   <div class="container">
+    <!-- 네비게이션 추가 -->
+    <div class="nav-menu">
+      <a href="/" class="active">📼 게시판</a>
+      <a href="/menu">🍴 메뉴 추천</a>
+    </div>
+
     <h1>📼 Y2K BOARD</h1>
     <a href="/write">✍ 글쓰기</a>
 

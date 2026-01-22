@@ -1,0 +1,30 @@
+폴더 PATH의 목록입니다.
+볼륨 일련 번호는 485B-4BC2입니다.
+C:.
+|   .gitignore
+|   app.py
+|   posts.json
+|   project.txt
+|   requirements.txt
+|   vercel.json
+|   
++---api
+|       index.py
+|       
++---static
+|   +---css
+|   |       style.css
+|   |       
+|   +---js
+|   |       main.js
+|   |       
+|   \---uploads
++---templates
+|       edit.html
+|       index.html
+|       view.html
+|       write.html
+|       
+\---uploads
+        bc6693fd-6935-456e-b770-907a340aa92c_911.jpg
+        
